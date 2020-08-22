@@ -244,6 +244,21 @@ class Annotation extends AstNode {
   Map toAst() => _ast;
 }
 
+/***
+ * 类方法
+ * EdgeInsets.only()
+ *  "callee":{
+    "type":"MemberExpression",
+    "object":{
+      "type":"Identifier",
+      "name":"EdgeInsets"
+    },
+    "property":{
+       "type":"Identifier",
+       "name":"only"
+    }
+    },
+ */
 class MemberExpression extends AstNode {
   Expression object;
   String property;
