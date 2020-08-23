@@ -91,7 +91,7 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
       };
 
   //构造变量声明
-  Map _buildVariableDeclaration(Map id, Map init) => {
+  Map _buildVariableDeclaration( Map id, Map init) => {
         "type": "VariableDeclarator",
         "id": id,
         "init": init,
@@ -210,6 +210,79 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
         "expression": expression,
       };
 
+  Map _buildVariableDeclarationListImpl(List <Map> variables) =>{
+      "type":"FieldDeclaration",
+       "variables":variables
+  };
+
+  Map _buildPostfixExpression(Map operand, String operator) =>{
+      "type":"PostfixExpression",
+      "operand":operand,
+      "operator":operator
+  };
+
+  Map _buildVisitListLiteral(List<Map> literal) =>{
+    "type": "ListLiteral",
+    "elements":literal
+  };
+
+//  Map _buildInstanceCreationExpression(String constructorName,List <Map> argummentlist) =>{
+//
+//    "type":"InstanceCreationExpression",
+//    "constructorName":constructorName,
+//   // "argumentList": argummentlist
+//  };
+
+  @override
+  Map visitListLiteral(ListLiteral node){
+
+    return _buildVisitListLiteral(_safelyVisitNodeList(node.elements));
+  }
+
+//
+////  @override
+////  Map visitInstanceCreationExpression(InstanceCreationExpression node){
+////
+////    return _buildInstanceCreationExpression(node.constructorName.toString(),_safelyVisitNodeList(node.argumentList.arguments));
+////
+////  }
+
+
+  @override
+  Map visitInterpolationExpression(InterpolationExpression node) {
+    // TODO: implement visitInterpolationExpression
+    return {"type":InterpolationExpression,
+            "expression":node.expression
+      };
+  }
+
+//  @override
+//  Map visitStringInterpolation(StringInterpolation node) {
+//    // TODO: implement visitStringInterpolation
+//    return {"type":"StringInterpolation",
+//            "elements":_safelyVisitNodeList(node.elements)
+//    };
+//  }
+
+  @override
+  Map visitPostfixExpression(PostfixExpression node) {
+    // TODO: implement visitPostfixExpression
+
+    return _buildPostfixExpression(_safelyVisitNode(node.operand),node.operator.toString());
+  }
+
+  @override
+  Map visitExpressionStatement(ExpressionStatement node) {
+    // TODO: implement visitExpressionStatement
+    return _safelyVisitNode(node.expression);
+  }
+
+  @override
+  Map visitFieldDeclaration(FieldDeclaration node) {
+    // TODO: implement visitFieldDeclaration
+    return  _buildVariableDeclarationListImpl(_safelyVisitNodeList(node.fields.variables));
+  }
+
   @override
   Map visitCompilationUnit(CompilationUnit node) {
     return _buildAstRoot(_safelyVisitNodeList(node.declarations));
@@ -227,8 +300,7 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
 
   @override
   Map visitVariableDeclaration(VariableDeclaration node) {
-    return _buildVariableDeclaration(
-        _safelyVisitNode(node.name), _safelyVisitNode(node.initializer));
+    return _buildVariableDeclaration(_safelyVisitNode(node.name), _safelyVisitNode(node.initializer));
   }
 
   @override
