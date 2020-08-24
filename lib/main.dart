@@ -26,9 +26,14 @@ main(List<String> arguments) async {
     var ast = await generate(paths[0]);
     //测试Runtime
      var astRuntime = AstRuntime(ast);
+    stdout.writeln('----------before');
     var vari =  astRuntime.variableStack;
-    stdout.writeln('----------\n Invoke incTec(100) result: $vari \n');
     var res = await astRuntime.callFunction ('_incrementCounter', params: []);
+    stdout.writeln('----------before:$vari\n');
+
+    stdout.writeln('----------after\n');
+    var vari2 =  astRuntime.variableStack;
+    stdout.writeln('----------after:$vari2\n');
 
   }
 }
@@ -219,6 +224,13 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
       "operator":operator
   };
 
+  Map _buildPrefixExpression(Map argument, String oprator, bool prefix)=>{
+      "type":"PrefixExpression",
+      "argument":argument,
+      "prefix":prefix,
+      "operator":oprator
+  };
+
   Map _buildVisitListLiteral(List<Map> literal) =>{
     "type": "ListLiteral",
     "elements":literal
@@ -266,7 +278,8 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
   Map visitPostfixExpression(PostfixExpression node) {
     // TODO: implement visitPostfixExpression
 
-    return _buildPostfixExpression(_safelyVisitNode(node.operand),node.operator.toString());
+      return _buildPrefixExpression(_safelyVisitNode(node.operand) ,node.operator.toString(),false);
+    //return _buildPostfixExpression(_safelyVisitNode(node.operand),node.operator.toString());
   }
 
   @override

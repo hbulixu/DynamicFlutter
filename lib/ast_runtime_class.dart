@@ -87,7 +87,7 @@ class AstClass {
           //解析类成员变量
           variableStack.setVariableValue(
               b.asVariableDeclarationList.declarationList[0].name,
-              _executeBaseExpression(b, variableStack));
+              _executeBaseExpression(b.asVariableDeclarationList.declarationList[0].init, variableStack));
         }
       }
       return AstClass(variableStack);
