@@ -8,6 +8,8 @@ import 'dart:convert';
 ///Description: file content
 ///
 import 'dart:io';
+import 'package:dynamicflutter/widget/ast_statefulwidget.dart';
+
 import '../argument_parser/argument_parser.dart';
 import 'package:flutter/material.dart';
 import 'package:dynamicflutter/ast_node.dart';
@@ -25,7 +27,8 @@ import 'basewidget_builder.dart';
 ///
 class TextWidgetBuilder implements BaseWidgetBuilder {
   TextWidgetBuilder();
-
+  //获取上下文
+  var varContext = astWidgetKey.currentState.runtime;
   @override
   Widget build(Expression widgetExpression, {Map variables}) {
     var argumentList = widgetExpression.asMethodInvocation.argumentList;

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dynamicflutter/ast_runtime_class.dart';
 ///
 ///Author: YoungChan
 ///Date: 2020-03-12 17:30:17
@@ -11,17 +12,21 @@ import 'package:flutter/material.dart';
 import 'package:dynamicflutter/ast_node.dart';
 import 'widget_builders/widget_builders.dart';
 
+
+final astWidgetKey = GlobalKey<AstStatefulWidgetState>();
 class AstStatefulWidget extends StatefulWidget {
   final Map ast;
 
-  AstStatefulWidget(this.ast);
+  //声明上下文
+  AstStatefulWidget(this.ast) : super(key: astWidgetKey);
 
   @override
-  _AstStatefulWidgetState createState() => _AstStatefulWidgetState();
+  AstStatefulWidgetState createState() => AstStatefulWidgetState();
 }
 
-class _AstStatefulWidgetState extends State<AstStatefulWidget> {
+class AstStatefulWidgetState extends State<AstStatefulWidget> {
   Widget _bodyWidget;
+  AstRuntime runtime;
 
   static const TAG = "AstStatefulWidgetState";
 
@@ -66,10 +71,16 @@ class _AstStatefulWidgetState extends State<AstStatefulWidget> {
     return Future.value();
   }
 
+  void astFuncRun(Map runAst){
+    //run func AST 更新上下文
+    //重新解析
+    _parseRootAst(widget.ast);
+  }
   @override
   void initState() {
+    //初始化上下文
+    //如何传递给上下文给子widget？
     _parseRootAst(widget.ast);
-
     super.initState();
   }
 

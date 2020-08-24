@@ -80,10 +80,28 @@ class AstVariableStack {
     assert(_stack.isNotEmpty);
     _stack.last[name] = AstVarialbleModel(AstVariableType.Function, instance);
   }
+
+  @override
+  String toString(){
+    for (var item in _stack){
+      print(item);
+
+      for(int i=0;i<item.keys.toList().length;i++)
+      {
+        print(item[item.keys.toList()[i]]);
+      }
+    }
+    return "";
+  }
 }
 
 class AstVarialbleModel {
   AstVariableType _variableType;
   dynamic value;
   AstVarialbleModel(this._variableType, this.value);
+  @override
+  String toString() {
+    String typeName = _variableType.toString();
+    return "type:$typeName vlue:$value";
+  }
 }

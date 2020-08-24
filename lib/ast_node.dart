@@ -211,9 +211,17 @@ class ListLiteral extends AstNode {
     if (ast != null &&
         ast['type'] == astNodeNameValue(AstNodeName.ListLiteral)) {
       var astElements = ast['elements'] as List;
-      var items = [];
-      for (var e in astElements) {
-        items.add(Expression.fromAst(e));
+      var items = <Expression>[];
+
+      if(astElements !=null){
+        for (var e in astElements) {
+
+          var expression =  Expression.fromAst(e) as Expression;
+          if(expression !=null){
+            items.add(expression);
+          }
+
+        }
       }
       return ListLiteral(items, ast: ast);
     }
@@ -417,6 +425,13 @@ class MethodInvocation extends AstNode {
   Map toAst() => _ast;
 }
 
+/***
+ *     namedExpression ::=
+ *          [Label] [Expression]
+ *
+ *   标签节点
+ *   mainAxisAlignment: MainAxisAlignment.center,
+ */
 class NamedExpression extends AstNode {
   String label;
   Expression expression;
@@ -520,9 +535,13 @@ class FieldDeclaration extends AstNode {
         ast['type'] == astNodeNameValue(AstNodeName.FieldDeclaration)) {
       var astMetadata = ast['metadata'] as List;
       var metadatas = <Annotation>[];
-      for (var arg in astMetadata) {
-        metadatas.add(Annotation.fromAst(arg));
+      //强制转换有问题
+      if(astMetadata !=null){
+        for (var arg in astMetadata) {
+          metadatas.add(Annotation.fromAst(arg));
+        }
       }
+
       return FieldDeclaration(
           VariableDeclarationList.fromAst(ast['fields']), metadatas,
           ast: ast);

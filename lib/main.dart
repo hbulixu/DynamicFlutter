@@ -25,9 +25,11 @@ main(List<String> arguments) async {
   } else {
     var ast = await generate(paths[0]);
     //测试Runtime
-    // var astRuntime = AstRuntime(ast);
-    // var res = await astRuntime.callFunction('incTen', params: [100]);
-    // stdout.writeln('Invoke incTec(100) result: $res');
+     var astRuntime = AstRuntime(ast);
+    var vari =  astRuntime.variableStack;
+    stdout.writeln('----------\n Invoke incTec(100) result: $vari \n');
+    var res = await astRuntime.callFunction ('_incrementCounter', params: []);
+
   }
 }
 
@@ -210,10 +212,6 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
         "expression": expression,
       };
 
-  Map _buildVariableDeclarationListImpl(List <Map> variables) =>{
-      "type":"FieldDeclaration",
-       "variables":variables
-  };
 
   Map _buildPostfixExpression(Map operand, String operator) =>{
       "type":"PostfixExpression",
@@ -278,9 +276,10 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
   }
 
   @override
+  //node.fields子节点类型 VariableDeclarationList
   Map visitFieldDeclaration(FieldDeclaration node) {
     // TODO: implement visitFieldDeclaration
-    return  _buildVariableDeclarationListImpl(_safelyVisitNodeList(node.fields.variables));
+    return  _buildVariableDeclarationList(_safelyVisitNode(node.fields.type), _safelyVisitNodeList(node.fields.variables));
   }
 
   @override

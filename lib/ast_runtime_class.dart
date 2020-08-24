@@ -12,22 +12,22 @@ String _TAG = "[Ast Runtime Class] ";
 
 class AstRuntime {
   AstClass _astClass;
-  AstVariableStack _variableStack;
+  AstVariableStack variableStack;
 
   AstRuntime(Map ast) {
     if (ast['type'] == astNodeNameValue(AstNodeName.Program)) {
       var body = ast['body'] as List;
-      _variableStack = AstVariableStack();
-      _variableStack.blockIn();
+      variableStack = AstVariableStack();
+      variableStack.blockIn();
       body?.forEach((b) {
         if (b['type'] == astNodeNameValue(AstNodeName.ClassDeclaration)) {
           //解析类
-          _astClass = AstClass.fromAst(b, variableStack: _variableStack);
+          _astClass = AstClass.fromAst(b, variableStack: variableStack);
         } else if (b['type'] ==
             astNodeNameValue(AstNodeName.FunctionDeclaration)) {
           //解析全局函数
           var func = AstFunction.fromAst(b);
-          _variableStack.setFunctionInstance<AstFunction>(func.name, func);
+          variableStack.setFunctionInstance<AstFunction>(func.name, func);
         }
       });
     }
@@ -44,9 +44,10 @@ class AstRuntime {
   ///调用全局函数，注意参数列表顺序与模版代码相同
   Future callFunction(String functionName, {List params}) async {
     var function =
-        _variableStack.getFunctionInstance<AstFunction>(functionName);
+        variableStack.getFunctionInstance<AstFunction>(functionName);
+    print("funtion name ="+function.name);
     if (function != null) {
-      return function.invoke(params, variableStack: _variableStack);
+      return function.invoke(params, variableStack: variableStack);
     }
     return Future.value();
   }
@@ -364,6 +365,7 @@ num _executePrefixExpression(
         returnValue = ++argValue.value;
       } else {
         returnValue = argValue.value++;
+        print('returnValue='+returnValue.toString());
       }
     } else if (prefixExpression.operator == '--') {
       if (prefixExpression.prefix) {
