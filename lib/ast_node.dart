@@ -45,6 +45,8 @@ enum AstNodeName {
   AwaitExpression,
   ExpressionStatement,
   IndexExpression,
+  StringInterpolation,
+  InterpolationExpression,
   Program
 }
 
@@ -922,6 +924,45 @@ class IndexExpression extends AstNode {
   Map toAst() => _ast;
 }
 
+class InterpolationExpression extends AstNode{
+
+  String name;
+  InterpolationExpression(this.name,{Map ast}):super(ast:ast);
+
+  factory InterpolationExpression.fromAst(Map ast){
+    if (ast != null &&
+        ast['type'] == astNodeNameValue(AstNodeName.InterpolationExpression)) {
+     return InterpolationExpression(Identifier.fromAst(ast['expression']).name , ast: ast);
+    }
+      return null;
+    }
+
+  @override
+  Map toAst() => _ast;
+}
+
+class StringInterpolation extends AstNode{
+
+  List <Expression> elements;
+  StringInterpolation(this.elements,{Map ast}):super(ast:ast);
+
+  factory  StringInterpolation.fromAst(Map ast){
+    if (ast != null &&
+        ast['type'] == astNodeNameValue(AstNodeName.StringInterpolation)) {
+
+      var elements = <Expression>[];
+      var list = ast['elements'] as List;
+      list?.forEach((s) {
+        elements.add(Expression.fromAst(s));
+      });
+      return StringInterpolation(elements , ast: ast);
+    }
+    return null;
+  }
+  @override
+  Map toAst() => _ast;
+}
+
 class Program extends AstNode {
   List<Expression> body;
 
@@ -976,6 +1017,8 @@ class Expression extends AstNode {
   bool isForStatement;
   bool isSwitchStatement;
   bool isIndexExpression;
+  bool isStringInterpolation;
+  bool isInterpolationExpression;
 
   @override
   Map toAst() => _ast;
@@ -1011,6 +1054,8 @@ class Expression extends AstNode {
     this.isForStatement = false,
     this.isSwitchStatement = false,
     this.isIndexExpression = false,
+        this.isStringInterpolation = false,
+        this.isInterpolationExpression =false,
     Map ast,
   }) : super(ast: ast);
 
@@ -1102,6 +1147,10 @@ class Expression extends AstNode {
     } else if (astType == astNodeNameValue(AstNodeName.IndexExpression)) {
       return Expression(IndexExpression.fromAst(ast),
           isIndexExpression: true, ast: ast);
+    }else if (astType == astNodeNameValue(AstNodeName.StringInterpolation)){
+      return Expression(StringInterpolation.fromAst(ast),isStringInterpolation:true,ast: ast);
+    }else if (astType == astNodeNameValue(AstNodeName.InterpolationExpression)){
+      return Expression(InterpolationExpression.fromAst(ast),isInterpolationExpression:true,ast: ast);
     }
     return null;
   }
@@ -1167,6 +1216,10 @@ class Expression extends AstNode {
   FunctionDeclaration get asFunctionDeclaration =>
       _expression as FunctionDeclaration;
   IndexExpression get asIndexExpression => _expression as IndexExpression;
+
+  StringInterpolation get asStringInterpolation => _expression as StringInterpolation;
+
+  InterpolationExpression get asInterpolationExpression => _expression as InterpolationExpression;
 }
 
 class SelectAstClass {
@@ -1239,7 +1292,6 @@ dynamic _parseLiteral(Map ast) {
   } else if (valueType == astNodeNameValue(AstNodeName.ListLiteral)) {
     return ListLiteral.fromAst(ast);
   }
-
   return null;
 }
 

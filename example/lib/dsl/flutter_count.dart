@@ -10,9 +10,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() {
-    setState(() {
       _counter++;
-    });
   }
 
   @override
@@ -21,7 +19,8 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar:  AppBar(
         title:  Text("test"),
       ),
-      body:  Center(
+      body:  Container(
+        color: Colors.lightBlue.shade300,
         child:  Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

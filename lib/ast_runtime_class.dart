@@ -203,6 +203,9 @@ Future _executeBodyExpression(
   } else if (expression.isReturnStatement) {
     return _executeBaseExpression(
         expression.asReturnStatement.argument, variableStack);
+  } else if (expression.isPrefixExpression){
+    print("expression.isPrefixExpression");
+    return _executePrefixExpression(expression.asPrefixExpression, variableStack);
   }
   return Future.value();
 }
@@ -365,7 +368,6 @@ num _executePrefixExpression(
         returnValue = ++argValue.value;
       } else {
         returnValue = argValue.value++;
-        print('returnValue='+returnValue.toString());
       }
     } else if (prefixExpression.operator == '--') {
       if (prefixExpression.prefix) {

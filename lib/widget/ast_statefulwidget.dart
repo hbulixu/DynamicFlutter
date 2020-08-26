@@ -16,7 +16,6 @@ import 'widget_builders/widget_builders.dart';
 final astWidgetKey = GlobalKey<AstStatefulWidgetState>();
 class AstStatefulWidget extends StatefulWidget {
   final Map ast;
-
   //声明上下文
   AstStatefulWidget(this.ast) : super(key: astWidgetKey);
 
@@ -71,21 +70,26 @@ class AstStatefulWidgetState extends State<AstStatefulWidget> {
     return Future.value();
   }
 
-  void astFuncRun(Map runAst){
+  Future<void> astFuncRun(Expression expression) async {
     //run func AST 更新上下文
+    if (expression.isIdentifier){
+        Identifier identifier = expression.asIdentifier;
+        await runtime.callFunction(identifier.name, params: []);
+    }
     //重新解析
     _parseRootAst(widget.ast);
   }
   @override
   void initState() {
     //初始化上下文
-    //如何传递给上下文给子widget？
+    runtime=AstRuntime(widget.ast);
     _parseRootAst(widget.ast);
     super.initState();
   }
 
   @override
   void dispose() {
+    runtime = null;
     super.dispose();
   }
 

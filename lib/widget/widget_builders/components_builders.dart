@@ -8,6 +8,7 @@ import 'dart:convert';
 ///Description: file content
 ///
 import 'dart:io';
+import 'package:dynamicflutter/ast_varialble_stack.dart';
 import 'package:dynamicflutter/widget/ast_statefulwidget.dart';
 
 import '../argument_parser/argument_parser.dart';
@@ -42,6 +43,16 @@ class TextWidgetBuilder implements BaseWidgetBuilder {
     for (var arg in argumentList) {
       if (arg.isStringLiteral) {
         text = arg.asStringLiteral.value;
+      }else if(arg.isStringInterpolation){
+         for(var item in arg.asStringInterpolation.elements){
+
+           AstVarialbleModel varialbleModel =  varContext.variableStack.getVariableValue(item.asInterpolationExpression?.name);
+            ;
+            if(varialbleModel != null){
+              text += varialbleModel.value.toString();
+            }
+
+         }
       } else if (arg.isNamedExpression) {
         var expression = arg.asNamedExpression.expression;
         switch (arg.asNamedExpression.label) {

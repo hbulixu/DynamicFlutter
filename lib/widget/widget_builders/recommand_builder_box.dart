@@ -25,6 +25,7 @@ class RecommandBuilderBox implements BaseBuilderBox {
     ListViewBuilder(),
     RowBuilder(),
     ColumnBuilder(),
+    FloatingActionBtBuilder(),
   ];
 
   @override

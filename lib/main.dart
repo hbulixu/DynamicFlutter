@@ -19,22 +19,26 @@ main(List<String> arguments) async {
   final parser = ArgParser()..addFlag("file", negatable: false, abbr: 'f');
 
   var argResults = parser.parse(arguments);
-  final paths = argResults.rest;
+  // final paths = argResults.rest;
+
+  final paths = [
+    "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/flutter_count.dart"
+  ];
   if (paths.isEmpty) {
     stdout.writeln('No file found');
   } else {
     var ast = await generate(paths[0]);
     //测试Runtime
-     var astRuntime = AstRuntime(ast);
+    var astRuntime = AstRuntime(ast);
     stdout.writeln('----------before');
-    var vari =  astRuntime.variableStack;
-    var res = await astRuntime.callFunction ('_incrementCounter', params: []);
+    var vari = astRuntime.variableStack;
+    var res = await astRuntime.callFunction('_incrementCounter', params: []);
     stdout.writeln('----------before:$vari\n');
 
     stdout.writeln('----------after\n');
-    var vari2 =  astRuntime.variableStack;
-    stdout.writeln('----------after:$vari2\n');
-
+    var vari2 = astRuntime.variableStack;
+    var value = vari2.getVariableValue("_counter");
+    stdout.writeln('----------after:$value\n');
   }
 }
 
@@ -98,7 +102,7 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
       };
 
   //构造变量声明
-  Map _buildVariableDeclaration( Map id, Map init) => {
+  Map _buildVariableDeclaration(Map id, Map init) => {
         "type": "VariableDeclarator",
         "id": id,
         "init": init,
@@ -217,24 +221,18 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
         "expression": expression,
       };
 
+  Map _buildPostfixExpression(Map operand, String operator) =>
+      {"type": "PostfixExpression", "operand": operand, "operator": operator};
 
-  Map _buildPostfixExpression(Map operand, String operator) =>{
-      "type":"PostfixExpression",
-      "operand":operand,
-      "operator":operator
-  };
+  Map _buildPrefixExpression(Map argument, String oprator, bool prefix) => {
+        "type": "PrefixExpression",
+        "argument": argument,
+        "prefix": prefix,
+        "operator": oprator
+      };
 
-  Map _buildPrefixExpression(Map argument, String oprator, bool prefix)=>{
-      "type":"PrefixExpression",
-      "argument":argument,
-      "prefix":prefix,
-      "operator":oprator
-  };
-
-  Map _buildVisitListLiteral(List<Map> literal) =>{
-    "type": "ListLiteral",
-    "elements":literal
-  };
+  Map _buildVisitListLiteral(List<Map> literal) =>
+      {"type": "ListLiteral", "elements": literal};
 
 //  Map _buildInstanceCreationExpression(String constructorName,List <Map> argummentlist) =>{
 //
@@ -244,8 +242,7 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
 //  };
 
   @override
-  Map visitListLiteral(ListLiteral node){
-
+  Map visitListLiteral(ListLiteral node) {
     return _buildVisitListLiteral(_safelyVisitNodeList(node.elements));
   }
 
@@ -257,28 +254,26 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
 ////
 ////  }
 
-
-  @override
+//  @override
   Map visitInterpolationExpression(InterpolationExpression node) {
     // TODO: implement visitInterpolationExpression
-    return {"type":InterpolationExpression,
-            "expression":node.expression
-      };
+    return {"type": "InterpolationExpression", "id": _safelyVisitNode(node.expression)};
   }
 
-//  @override
-//  Map visitStringInterpolation(StringInterpolation node) {
-//    // TODO: implement visitStringInterpolation
-//    return {"type":"StringInterpolation",
-//            "elements":_safelyVisitNodeList(node.elements)
-//    };
-//  }
+  @override
+  Map visitStringInterpolation(StringInterpolation node) {
+    // TODO: implement visitStringInterpolation
+    return {"type":"StringInterpolation",
+      "elements":_safelyVisitNodeList(node.elements)
+    };
+  }
 
   @override
   Map visitPostfixExpression(PostfixExpression node) {
     // TODO: implement visitPostfixExpression
 
-      return _buildPrefixExpression(_safelyVisitNode(node.operand) ,node.operator.toString(),false);
+    return _buildPrefixExpression(
+        _safelyVisitNode(node.operand), node.operator.toString(), false);
     //return _buildPostfixExpression(_safelyVisitNode(node.operand),node.operator.toString());
   }
 
@@ -292,7 +287,8 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
   //node.fields子节点类型 VariableDeclarationList
   Map visitFieldDeclaration(FieldDeclaration node) {
     // TODO: implement visitFieldDeclaration
-    return  _buildVariableDeclarationList(_safelyVisitNode(node.fields.type), _safelyVisitNodeList(node.fields.variables));
+    return _buildVariableDeclarationList(_safelyVisitNode(node.fields.type),
+        _safelyVisitNodeList(node.fields.variables));
   }
 
   @override
@@ -312,7 +308,8 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
 
   @override
   Map visitVariableDeclaration(VariableDeclaration node) {
-    return _buildVariableDeclaration(_safelyVisitNode(node.name), _safelyVisitNode(node.initializer));
+    return _buildVariableDeclaration(
+        _safelyVisitNode(node.name), _safelyVisitNode(node.initializer));
   }
 
   @override

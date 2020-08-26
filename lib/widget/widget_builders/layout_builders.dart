@@ -1,3 +1,4 @@
+import 'package:analyzer/dart/analysis/utilities.dart';
 ///
 ///Author: YoungChan
 ///Date: 2020-03-18 12:22:32
@@ -10,7 +11,7 @@ import 'package:dynamicflutter/ast_node.dart';
 import 'basewidget_builder.dart';
 import 'widget_builder_factory.dart';
 import '../argument_parser/argument_parser.dart';
-
+import 'package:dynamicflutter/widget/ast_statefulwidget.dart';
 class ScaffoldBuilder implements BaseWidgetBuilder {
   @override
   Widget build(Expression widgetExpression, {Map variables}) {
@@ -36,6 +37,7 @@ class ScaffoldBuilder implements BaseWidgetBuilder {
           case 'floatingActionButton':
             floatingActionButton =
                 FHWidgetBuilderFactory.buildWidgetWithExpression(expression);
+            print(floatingActionButton);
             break;
         }
       }
@@ -50,6 +52,45 @@ class ScaffoldBuilder implements BaseWidgetBuilder {
 
   @override
   String get widgetName => 'Scaffold';
+}
+
+class FloatingActionBtBuilder implements BaseWidgetBuilder{
+
+  //获取上下文
+  var pstate = astWidgetKey.currentState;
+  @override
+  Widget build(Expression widgetExpression, {Map variables}) {
+    // TODO: implement build
+    var argumentList = widgetExpression.asMethodInvocation.argumentList;
+    var onPress;
+    var toolTip;
+    var child;
+    for (var arg in argumentList) {
+      if (arg.isNamedExpression) {
+        var expression = arg.asNamedExpression.expression;
+        switch (arg.asNamedExpression.label) {
+          case 'tooltip':
+            toolTip = parseBaseLiteral(expression);
+            break;
+          case 'onPressed':
+            onPress = (){
+              pstate.astFuncRun(expression);
+            };
+            break;
+          case 'child':
+            child =
+                FHWidgetBuilderFactory.buildWidgetWithExpression(expression);
+            break;
+        }
+      }
+    }
+
+    return FloatingActionButton(onPressed: onPress,tooltip: toolTip,child: child);
+
+  }
+
+  @override
+  String get widgetName => 'FloatingActionButton';
 }
 
 class ContainerBuilder implements BaseWidgetBuilder {

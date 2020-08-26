@@ -13,6 +13,8 @@ IconData parseIconData(Expression expression) {
     switch (expression.asPrefixedIdentifier.identifier) {
       case 'face':
         return Icons.face;
+      case 'add':
+        return Icons.add;
     }
   }
   return null;
