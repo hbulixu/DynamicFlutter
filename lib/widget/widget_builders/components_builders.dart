@@ -8,6 +8,7 @@ import 'dart:convert';
 ///Description: file content
 ///
 import 'dart:io';
+import 'package:dynamicflutter/ast_runtime_stack.dart';
 import 'package:dynamicflutter/ast_varialble_stack.dart';
 import 'package:dynamicflutter/widget/ast_statefulwidget.dart';
 
@@ -28,8 +29,7 @@ import 'basewidget_builder.dart';
 ///
 class TextWidgetBuilder implements BaseWidgetBuilder {
   TextWidgetBuilder();
-  //获取上下文
-  var varContext = astWidgetKey.currentState.runtime;
+
   @override
   Widget build(Expression widgetExpression, {Map variables}) {
     var argumentList = widgetExpression.asMethodInvocation.argumentList;
@@ -40,6 +40,8 @@ class TextWidgetBuilder implements BaseWidgetBuilder {
     var overflow = TextOverflow.ellipsis;
     int maxLines = 1;
     bool softWrap = true;
+    //获取上下文
+    var varContext = AstRuntimeStack.getInstance().getTop().runtime;
     for (var arg in argumentList) {
       if (arg.isStringLiteral) {
         text = arg.asStringLiteral.value;

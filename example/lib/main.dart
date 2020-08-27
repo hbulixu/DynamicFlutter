@@ -83,7 +83,7 @@ class _DSLListPage extends StatelessWidget {
       body: ListView(
         children: <Widget>[
           ListTile(
-            title: Text('ListView'),
+            title: Text('tap'),
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => ListViewDSL()));
@@ -105,7 +105,7 @@ class _DynamicFlutterList extends StatelessWidget {
       body: ListView(
         children: <Widget>[
           ListTile(
-            title: Text('ListView'),
+            title: Text('tap'),
             onTap: () async {
               Navigator.push(
                   context,

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:dynamicflutter/ast_runtime_class.dart';
+import 'package:dynamicflutter/ast_runtime_stack.dart';
+import 'package:event_bus/event_bus.dart';
 ///
 ///Author: YoungChan
 ///Date: 2020-03-12 17:30:17
@@ -13,11 +15,17 @@ import 'package:dynamicflutter/ast_node.dart';
 import 'widget_builders/widget_builders.dart';
 
 
-final astWidgetKey = GlobalKey<AstStatefulWidgetState>();
+//class AstExpressionEvent{
+//  Expression expression;
+//  AstExpressionEvent(this.expression);
+//}
+
+//EventBus eventBus  = new EventBus();
+
 class AstStatefulWidget extends StatefulWidget {
   final Map ast;
   //声明上下文
-  AstStatefulWidget(this.ast) : super(key: astWidgetKey);
+  AstStatefulWidget(this.ast);
 
   @override
   AstStatefulWidgetState createState() => AstStatefulWidgetState();
@@ -26,7 +34,7 @@ class AstStatefulWidget extends StatefulWidget {
 class AstStatefulWidgetState extends State<AstStatefulWidget> {
   Widget _bodyWidget;
   AstRuntime runtime;
-
+ // StreamSubscription subscription;
   static const TAG = "AstStatefulWidgetState";
 
   Future _parseRootAst(Map rootAst) async {
@@ -42,17 +50,20 @@ class AstStatefulWidgetState extends State<AstStatefulWidget> {
             if (bodyNode.isMethodDeclaration) {
               switch (bodyNode.asMethodDeclaration.name) {
                 case 'build':
-                  var buildBodyReturn = bodyNode.asMethodDeclaration.body.body;
-                  if (buildBodyReturn.isNotEmpty &&
-                      buildBodyReturn[0].isReturnStatement &&
-                      buildBodyReturn[0].asReturnStatement.argument != null) {
-                    setState(() {
-                      _bodyWidget =
-                          FHWidgetBuilderFactory.buildWidgetWithExpression(
-                              buildBodyReturn[0].asReturnStatement.argument);
-                    });
+                  {
+                    var buildBodyReturn = bodyNode.asMethodDeclaration.body
+                        .body;
+                    if (buildBodyReturn.isNotEmpty &&
+                        buildBodyReturn[0].isReturnStatement &&
+                        buildBodyReturn[0].asReturnStatement.argument != null) {
+                      setState(() {
+                        _bodyWidget =
+                            FHWidgetBuilderFactory.buildWidgetWithExpression(
+                                buildBodyReturn[0].asReturnStatement.argument);
+                      });
+                       }
+                    break;
                   }
-                  break;
                 case 'initState':
                   break;
                 case 'didUpdateWidget':
@@ -79,17 +90,26 @@ class AstStatefulWidgetState extends State<AstStatefulWidget> {
     //重新解析
     _parseRootAst(widget.ast);
   }
+
   @override
   void initState() {
+
     //初始化上下文
-    runtime=AstRuntime(widget.ast);
-    _parseRootAst(widget.ast);
     super.initState();
+    runtime=AstRuntime(widget.ast);
+    AstRuntimeStack.getInstance().blockIn(this);
+    _parseRootAst(widget.ast);
+
+//    subscription = eventBus.on<AstExpressionEvent>().listen((event) {
+//      astFuncRun(event.expression);
+//    });
   }
 
   @override
   void dispose() {
-    runtime = null;
+  //  subscription.cancel();
+    _bodyWidget == null;
+    AstRuntimeStack.getInstance().blockOut(this);
     super.dispose();
   }
 

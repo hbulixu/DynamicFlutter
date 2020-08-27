@@ -2,3 +2,5 @@
 .*
 pubspec.lock
 .packages
+example/ios/*
+build/*

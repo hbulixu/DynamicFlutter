@@ -1,4 +1,5 @@
 import 'package:analyzer/dart/analysis/utilities.dart';
+import 'package:dynamicflutter/ast_runtime_stack.dart';
 ///
 ///Author: YoungChan
 ///Date: 2020-03-18 12:22:32
@@ -57,7 +58,6 @@ class ScaffoldBuilder implements BaseWidgetBuilder {
 class FloatingActionBtBuilder implements BaseWidgetBuilder{
 
   //获取上下文
-  var pstate = astWidgetKey.currentState;
   @override
   Widget build(Expression widgetExpression, {Map variables}) {
     // TODO: implement build
@@ -74,7 +74,8 @@ class FloatingActionBtBuilder implements BaseWidgetBuilder{
             break;
           case 'onPressed':
             onPress = (){
-              pstate.astFuncRun(expression);
+             // eventBus.fire(AstExpressionEvent(expression));
+              AstRuntimeStack.getInstance().getTop().astFuncRun(expression);
             };
             break;
           case 'child':
