@@ -52,6 +52,14 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
     return widgetExpressionList;
   }
 
+  if(widgetExpression.isFunctionExpression){
+   return _buildWidgetDsl(widgetExpression.asFunctionExpression.body.body[0]);
+  }
+
+  if(widgetExpression.isReturnStatement){
+    return _buildWidgetDsl(widgetExpression.asReturnStatement.argument);
+  }
+
   var methodInvocationExpression =  widgetExpression.asMethodInvocation;
   //普通类
   if(methodInvocationExpression.callee.isIdentifier){
@@ -70,8 +78,22 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
      if(arg.isNamedExpression){
        break;
      }
-     //pa不是常量待处理
-     paMap.add(arg);
+     //pa 常量处理
+     var valueExpression = arg;
+     var naValue;
+     if(valueExpression.isIdentifier) {
+       naValue = valueExpression.asIdentifier.name;
+     }else if(valueExpression.isNumericLiteral){
+       naValue =  valueExpression.asNumericLiteral.value;
+     }else if (valueExpression.isStringLiteral){
+       naValue = valueExpression.asStringLiteral.value;
+     }else if(valueExpression.isBooleanLiteral){
+       naValue = valueExpression.asBooleanLiteral.value;
+     }
+     else{
+       naValue = "";
+     }
+     paMap.add(naValue);
   }
 
   //2.na
@@ -98,8 +120,16 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
         naValue = valueExpression.asBooleanLiteral.value;
       }else if(valueExpression.isPrefixedIdentifier){
         naValue = "#("+valueExpression.asPrefixedIdentifier.prefix+"."+valueExpression.asPrefixedIdentifier.identifier+")";
-      }else{
-        naMap.putIfAbsent(nameExpression.label, () => _buildWidgetDsl(valueExpression));
+      }else if(valueExpression.isPropertyAccess){
+        if(valueExpression.asPropertyAccess.expression.isPrefixedIdentifier){
+          var prefixedIdentifier = valueExpression.asPropertyAccess.expression.asPrefixedIdentifier;
+          naValue = prefixedIdentifier.prefix+"."+prefixedIdentifier.identifier+"."+valueExpression.asPropertyAccess.name;
+        }else{
+          naValue = "";
+        }
+      }
+      else{
+        naValue = _buildWidgetDsl(valueExpression);
       }
       naMap.putIfAbsent(nameExpression.label, () =>naValue);
      }

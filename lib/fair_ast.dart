@@ -22,7 +22,8 @@ main(List<String> arguments) async {
   // final paths = argResults.rest;
 
   final paths = [
-    "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/video_card.dart"
+   // "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/video_card.dart"
+    "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/listview_dsl.dart"
   ];
   if (paths.isEmpty) {
     stdout.writeln('No file found');
