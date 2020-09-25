@@ -135,7 +135,7 @@ class NumericLiteral extends AstNode {
   factory NumericLiteral.fromAst(Map ast) {
     if (ast != null &&
         ast['type'] == astNodeNameValue(AstNodeName.NumericLiteral)) {
-      return NumericLiteral(ast['value'], ast: ast);
+      return NumericLiteral(  ast['value'], ast: ast);
     }
     return null;
   }

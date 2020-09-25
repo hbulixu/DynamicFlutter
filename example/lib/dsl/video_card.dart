@@ -50,10 +50,10 @@ class VideoCard extends StatelessWidget {
                 child: Row(
                   children: <Widget>[
                     Container(
-                        width: MediaQuery.of(context).size.width / 2.5,
+                        width: exp1,
                         margin: const EdgeInsets.only(right: 6.0),
                         child: AspectRatio(
-                            aspectRatio: 4.0 / 2.0,
+                            aspectRatio: 2.0,
                             child: Container(
                               foregroundDecoration: BoxDecoration(
                                   image: DecorationImage(
@@ -67,9 +67,9 @@ class VideoCard extends StatelessWidget {
                             ))),
                     Container(
                         margin: const EdgeInsets.only(right: 6.0),
-                        width: MediaQuery.of(context).size.width / 2.5,
+                        width: exp2,
                         child: AspectRatio(
-                            aspectRatio: 4.0 / 2.0,
+                            aspectRatio:2.0,
                             child: Container(
                               foregroundDecoration: BoxDecoration(
                                   image: DecorationImage(
@@ -83,9 +83,9 @@ class VideoCard extends StatelessWidget {
                             ))),
                     Container(
                         margin: const EdgeInsets.only(right: 6.0),
-                        width: MediaQuery.of(context).size.width / 2.5,
+                        width: exp2,
                         child: AspectRatio(
-                            aspectRatio: 4.0 / 2.0,
+                            aspectRatio: 2.0,
                             child: Container(
                               foregroundDecoration: BoxDecoration(
                                   image: DecorationImage(
@@ -98,9 +98,9 @@ class VideoCard extends StatelessWidget {
                                       const Radius.circular(6.0))),
                             ))),
                     Container(
-                        width: MediaQuery.of(context).size.width / 2.5,
+                        width: exp2,
                         child: AspectRatio(
-                            aspectRatio: 4.0 / 2.0,
+                            aspectRatio: 2.0,
                             child: Container(
                               foregroundDecoration: BoxDecoration(
                                   image: DecorationImage(

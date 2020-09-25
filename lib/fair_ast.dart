@@ -22,8 +22,8 @@ main(List<String> arguments) async {
   // final paths = argResults.rest;
 
   final paths = [
-   // "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/video_card.dart"
-    "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/listview_dsl.dart"
+    "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/video_card.dart"
+    //"/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/listview_dsl.dart"
   ];
   if (paths.isEmpty) {
     stdout.writeln('No file found');
@@ -315,6 +315,10 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
 
   @override
   Map visitIntegerLiteral(IntegerLiteral node) {
+    
+    if(node.literal.lexeme.toUpperCase().startsWith("0X")){
+      return _buildStringLiteral(node.literal.lexeme);
+    }
     return _buildNumericLiteral(node.value);
   }
 
