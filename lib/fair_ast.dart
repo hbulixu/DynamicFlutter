@@ -418,6 +418,24 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
   }
 
   @override
+  Map visitInstanceCreationExpression(InstanceCreationExpression node) {
+    // TODO: implement visitInstanceCreationExpression
+    Map callee;
+    if(node.constructorName.type.name is PrefixedIdentifier){
+      PrefixedIdentifier prefixedIdentifier = node.constructorName.type.name as PrefixedIdentifier;
+      callee = {
+        "type": "MemberExpression",
+        "object": _safelyVisitNode(prefixedIdentifier.prefix),
+        "property": _safelyVisitNode(prefixedIdentifier.identifier),
+      };
+    }else{ //如果不是simpleIdentif 需要特殊处理
+      callee = _safelyVisitNode(node.constructorName.type.name);
+    }
+    return _buildMethodInvocation(callee, null,
+        _safelyVisitNode(node.argumentList));
+  }
+
+  @override
   visitSimpleStringLiteral(SimpleStringLiteral node) {
     return _buildStringLiteral(node.value);
   }

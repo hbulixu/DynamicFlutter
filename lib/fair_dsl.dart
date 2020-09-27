@@ -89,6 +89,8 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
        naValue = valueExpression.asStringLiteral.value;
      }else if(valueExpression.isBooleanLiteral){
        naValue = valueExpression.asBooleanLiteral.value;
+     }else if(valueExpression.isPrefixedIdentifier){
+       naValue = "#("+valueExpression.asPrefixedIdentifier.prefix+"."+valueExpression.asPrefixedIdentifier.identifier+")";
      }
      else{
        naValue = "";
@@ -134,15 +136,16 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
       naMap.putIfAbsent(nameExpression.label, () =>naValue);
      }
   }
-  
-  if(naMap.isNotEmpty){
-    
-    dslMap.putIfAbsent("na", () => naMap);
-  }
 
   if(paMap.isNotEmpty){
 
     dslMap.putIfAbsent("pa", () => paMap);
+  }
+
+
+  if(naMap.isNotEmpty){
+    
+    dslMap.putIfAbsent("na", () => naMap);
   }
 
   return dslMap;
