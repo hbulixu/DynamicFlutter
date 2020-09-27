@@ -22,7 +22,8 @@ main(List<String> arguments) async {
   // final paths = argResults.rest;
 
   final paths = [
-    "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/video_card.dart"
+    "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/idea_card.dart"
+    //"/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/video_card.dart"
     //"/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/listview_dsl.dart"
   ];
   if (paths.isEmpty) {
@@ -308,10 +309,10 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
   }
 
   @override
-  Map visitBinaryExpression(BinaryExpression node) {
-    return _buildBinaryExpression(_safelyVisitNode(node.leftOperand),
-        _safelyVisitNode(node.rightOperand), node.operator.lexeme);
-  }
+//  Map visitBinaryExpression(BinaryExpression node) {
+//    return _buildBinaryExpression(_safelyVisitNode(node.leftOperand),
+//        _safelyVisitNode(node.rightOperand), node.operator.lexeme);
+//  }
 
   @override
   Map visitIntegerLiteral(IntegerLiteral node) {

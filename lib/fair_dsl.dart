@@ -53,7 +53,11 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
   }
 
   if(widgetExpression.isFunctionExpression){
-   return _buildWidgetDsl(widgetExpression.asFunctionExpression.body.body[0]);
+    if(widgetExpression.asFunctionExpression.body.body.length>0){
+      return _buildWidgetDsl(widgetExpression.asFunctionExpression.body.body[0]);
+    }
+    return "";
+
   }
 
   if(widgetExpression.isReturnStatement){
@@ -80,22 +84,8 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
      }
      //pa 常量处理
      var valueExpression = arg;
-     var naValue;
-     if(valueExpression.isIdentifier) {
-       naValue = valueExpression.asIdentifier.name;
-     }else if(valueExpression.isNumericLiteral){
-       naValue =  valueExpression.asNumericLiteral.value;
-     }else if (valueExpression.isStringLiteral){
-       naValue = valueExpression.asStringLiteral.value;
-     }else if(valueExpression.isBooleanLiteral){
-       naValue = valueExpression.asBooleanLiteral.value;
-     }else if(valueExpression.isPrefixedIdentifier){
-       naValue = "#("+valueExpression.asPrefixedIdentifier.prefix+"."+valueExpression.asPrefixedIdentifier.identifier+")";
-     }
-     else{
-       naValue = "";
-     }
-     paMap.add(naValue);
+     var paValue = _buildValueExpression(valueExpression);
+     paMap.add(paValue);
   }
 
   //2.na
@@ -111,28 +101,8 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
       if(valueExpression == null){
         continue;
       }
-      var naValue;
-      if(valueExpression.isIdentifier) {
-        naValue = valueExpression.asIdentifier.name;
-      }else if(valueExpression.isNumericLiteral){
-        naValue =  valueExpression.asNumericLiteral.value;
-      }else if (valueExpression.isStringLiteral){
-        naValue = valueExpression.asStringLiteral.value;
-      }else if(valueExpression.isBooleanLiteral){
-        naValue = valueExpression.asBooleanLiteral.value;
-      }else if(valueExpression.isPrefixedIdentifier){
-        naValue = "#("+valueExpression.asPrefixedIdentifier.prefix+"."+valueExpression.asPrefixedIdentifier.identifier+")";
-      }else if(valueExpression.isPropertyAccess){
-        if(valueExpression.asPropertyAccess.expression.isPrefixedIdentifier){
-          var prefixedIdentifier = valueExpression.asPropertyAccess.expression.asPrefixedIdentifier;
-          naValue = prefixedIdentifier.prefix+"."+prefixedIdentifier.identifier+"."+valueExpression.asPropertyAccess.name;
-        }else{
-          naValue = "";
-        }
-      }
-      else{
-        naValue = _buildWidgetDsl(valueExpression);
-      }
+      var naValue = _buildValueExpression(valueExpression);
+
       naMap.putIfAbsent(nameExpression.label, () =>naValue);
      }
   }
@@ -150,4 +120,32 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
 
   return dslMap;
 
+}
+
+dynamic _buildValueExpression(Expression valueExpression){
+
+  var naPaValue;
+
+  if(valueExpression.isIdentifier) {
+    naPaValue = valueExpression.asIdentifier.name;
+  }else if(valueExpression.isNumericLiteral){
+    naPaValue =  valueExpression.asNumericLiteral.value;
+  }else if (valueExpression.isStringLiteral){
+    naPaValue = valueExpression.asStringLiteral.value;
+  }else if(valueExpression.isBooleanLiteral){
+    naPaValue = valueExpression.asBooleanLiteral.value;
+  }else if(valueExpression.isPrefixedIdentifier){
+    naPaValue = "#("+valueExpression.asPrefixedIdentifier.prefix+"."+valueExpression.asPrefixedIdentifier.identifier+")";
+  }else if(valueExpression.isPropertyAccess){
+    if(valueExpression.asPropertyAccess.expression.isPrefixedIdentifier){
+      var prefixedIdentifier = valueExpression.asPropertyAccess.expression.asPrefixedIdentifier;
+      naPaValue = prefixedIdentifier.prefix+"."+prefixedIdentifier.identifier+"."+valueExpression.asPropertyAccess.name;
+    }else{
+      naPaValue = "";
+    }
+  }
+  else{
+    naPaValue = _buildWidgetDsl(valueExpression);
+  }
+  return naPaValue;
 }
