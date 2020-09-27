@@ -26,10 +26,10 @@ void fairDsl(Map rootAst){
          if(bodyNode.isMethodDeclaration && bodyNode.asMethodDeclaration.name == "build"){
             var buildBodyReturn = bodyNode.asMethodDeclaration.body.body;
             if(buildBodyReturn.isNotEmpty &&
-               buildBodyReturn[0].isReturnStatement &&
-                buildBodyReturn[0].asReturnStatement.argument != null){
+               buildBodyReturn.last.isReturnStatement &&
+                buildBodyReturn.last.asReturnStatement.argument != null){
                 //解析build中widgetExpression
-              return  _buildWidgetDsl(buildBodyReturn[0].asReturnStatement.argument);
+              return  _buildWidgetDsl(buildBodyReturn.last.asReturnStatement.argument);
             }
          }
 
@@ -54,7 +54,7 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
 
   if(widgetExpression.isFunctionExpression){
     if(widgetExpression.asFunctionExpression.body.body.length>0){
-      return _buildWidgetDsl(widgetExpression.asFunctionExpression.body.body[0]);
+      return _buildWidgetDsl(widgetExpression.asFunctionExpression.body.body.last);
     }
     return "";
 
