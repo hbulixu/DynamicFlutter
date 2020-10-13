@@ -24,7 +24,8 @@ main(List<String> arguments) async {
   final paths = [
     //"/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/idea_card.dart"
    // "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/video_card.dart"
-    "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/listview_dsl.dart"
+   // "/Users/lixu12/Desktop/DynamicFlutter/example/lib/dsl/listview_dsl.dart"
+     "/Users/lixu12/Desktop/fair/example/lib/page/zhihu/my_page.dart"
   ];
   if (paths.isEmpty) {
     stdout.writeln('No file found');
@@ -104,11 +105,12 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
 
   //构造变量声明
   Map _buildVariableDeclarationList(
-          Map typeAnnotation, List<Map> declarations) =>
+          Map typeAnnotation, List<Map> declarations,List<Map> annotations) =>
       {
         "type": "VariableDeclarationList",
         "typeAnnotation": typeAnnotation,
         "declarations": declarations,
+        "annotations" : annotations
       };
   //构造标识符定义
   Map _buildIdentifier(String name) => {"type": "Identifier", "name": name};
@@ -228,7 +230,17 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
   Map _buildVisitListLiteral(List<Map> literal) =>
       {"type": "ListLiteral", "elements": literal};
 
+  Map _buildAnnotation(Map name,Map argumentList) =>{
 
+      "type":"Annotation",
+      "id":name,
+      "argumentList":argumentList
+  };
+  @override
+  Map visitAnnotation(Annotation node) {
+    // TODO: implement visitAnnotation
+    return _buildAnnotation(_safelyVisitNode(node.name),_safelyVisitNode(node.arguments));
+  }
   @override
   Map visitListLiteral(ListLiteral node) {
     return _buildVisitListLiteral(_safelyVisitNodeList(node.elements));
@@ -259,16 +271,16 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
 
   @override
   Map visitExpressionStatement(ExpressionStatement node) {
-    // TODO: implement visitExpressionStatement
+
     return _safelyVisitNode(node.expression);
   }
 
   @override
   //node.fields子节点类型 VariableDeclarationList
   Map visitFieldDeclaration(FieldDeclaration node) {
-    // TODO: implement visitFieldDeclaration
+
     return _buildVariableDeclarationList(_safelyVisitNode(node.fields.type),
-        _safelyVisitNodeList(node.fields.variables));
+        _safelyVisitNodeList(node.fields.variables),_safelyVisitNodeList(node.metadata));
   }
 
   @override
@@ -300,7 +312,7 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
   @override
   Map visitVariableDeclarationList(VariableDeclarationList node) {
     return _buildVariableDeclarationList(
-        _safelyVisitNode(node.type), _safelyVisitNodeList(node.variables));
+        _safelyVisitNode(node.type), _safelyVisitNodeList(node.variables),_safelyVisitNodeList(node.metadata));
   }
 
   @override

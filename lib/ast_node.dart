@@ -503,8 +503,8 @@ class VariableDeclarator extends AstNode {
 class VariableDeclarationList extends AstNode {
   String typeAnnotation;
   List<VariableDeclarator> declarationList;
-
-  VariableDeclarationList(this.typeAnnotation, this.declarationList, {Map ast})
+  List<Annotation> annotationList;
+  VariableDeclarationList(this.typeAnnotation, this.declarationList,this.annotationList, {Map ast})
       : super(ast: ast);
 
   factory VariableDeclarationList.fromAst(Map ast) {
@@ -515,8 +515,13 @@ class VariableDeclarationList extends AstNode {
       for (var arg in astDeclarations) {
         declarations.add(VariableDeclarator.fromAst(arg));
       }
+      var astAnnotations = ast ['annotations'] as List;
+      var annotations = <Annotation>[];
+      for (var annotation in astAnnotations){
+        annotations.add(Annotation.fromAst(annotation));
+      }
       return VariableDeclarationList(
-          Identifier.fromAst(ast['typeAnnotation'])?.name, declarations,
+          Identifier.fromAst(ast['typeAnnotation'])?.name, declarations,annotations,
           ast: ast);
     }
     return null;

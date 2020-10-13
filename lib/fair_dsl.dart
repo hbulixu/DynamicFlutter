@@ -2,13 +2,52 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dynamicflutter/ast_node.dart';
 
-void fairDsl(Map rootAst){
 
-  Map map = _parseRootAst(rootAst);
+//解析用到的上下文
+class FairDslContex{
+  //标明是变量的注解
+  Map variableAnnotation;
+  FairDslContex(this.variableAnnotation);
+}
+
+void fairDsl(Map rootAst){
+  FairDslContex fairDslContex = FairDslContex(_prepareVariableAnnotation(rootAst));
+  Map map = _parseRootAst(rootAst,fairDslContex);
   stdout.writeln(jsonEncode(map));
 }
 
- Map _parseRootAst(Map rootAst) {
+
+Map _prepareVariableAnnotation(Map rootAst){
+
+  Map annotationMap = Map();
+  var rootExpression = Expression.fromAst(rootAst);
+  if (!rootExpression.isProgram) {
+    return null;
+  }
+  var bodyList = rootExpression.asProgram.body;
+  if ((bodyList?.length??0) == 0)
+  {
+    return null;
+  }
+  for(var body in bodyList){
+    var classBodyList = body.asClassDeclaration.body;
+    for(var bodyNode in classBodyList){
+      //只处理变量声明
+      if(bodyNode.isVariableDeclarationList){
+         var annotaions = bodyNode.asVariableDeclarationList.annotationList;
+         for(var annotation in annotaions){
+           if(annotation.name == "FairWell"){
+             var arg = annotation.argumentList.first.asStringLiteral;
+             annotationMap.putIfAbsent(arg.value, () => {"FairWell"});
+           }
+         }
+      }
+    }
+  }
+  return annotationMap;
+}
+
+ Map _parseRootAst(Map rootAst,FairDslContex fairDslContex) {
 
     var rootExpression = Expression.fromAst(rootAst);
     if (!rootExpression.isProgram) {
@@ -29,7 +68,7 @@ void fairDsl(Map rootAst){
                buildBodyReturn.last.isReturnStatement &&
                 buildBodyReturn.last.asReturnStatement.argument != null){
                 //解析build中widgetExpression
-              return  _buildWidgetDsl(buildBodyReturn.last.asReturnStatement.argument);
+              return  _buildWidgetDsl(buildBodyReturn.last.asReturnStatement.argument,fairDslContex);
             }
          }
 
@@ -38,7 +77,7 @@ void fairDsl(Map rootAst){
     }
 }
 
-dynamic _buildWidgetDsl(Expression widgetExpression ){
+dynamic _buildWidgetDsl(Expression widgetExpression ,FairDslContex fairDslContex){
 
   Map dslMap = Map();
   List paMap = List();
@@ -47,21 +86,21 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
   if(widgetExpression.isListLiteral){
     List widgetExpressionList = List();
     for(var itemWidgetExpression in widgetExpression.asListLiteral.elements){
-      widgetExpressionList.add( _buildWidgetDsl(itemWidgetExpression));
+      widgetExpressionList.add( _buildWidgetDsl(itemWidgetExpression,fairDslContex));
     }
     return widgetExpressionList;
   }
 
   if(widgetExpression.isFunctionExpression){
     if(widgetExpression.asFunctionExpression.body.body.length>0){
-      return _buildWidgetDsl(widgetExpression.asFunctionExpression.body.body.last);
+      return _buildWidgetDsl(widgetExpression.asFunctionExpression.body.body.last,fairDslContex);
     }
     return "";
 
   }
 
   if(widgetExpression.isReturnStatement){
-    return _buildWidgetDsl(widgetExpression.asReturnStatement.argument);
+    return _buildWidgetDsl(widgetExpression.asReturnStatement.argument,fairDslContex);
   }
 
   var methodInvocationExpression =  widgetExpression.asMethodInvocation;
@@ -84,7 +123,7 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
      }
      //pa 常量处理
      var valueExpression = arg;
-     var paValue = _buildValueExpression(valueExpression);
+     var paValue = _buildValueExpression(valueExpression,fairDslContex);
      paMap.add(paValue);
   }
 
@@ -101,7 +140,7 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
       if(valueExpression == null){
         continue;
       }
-      var naValue = _buildValueExpression(valueExpression);
+      var naValue = _buildValueExpression(valueExpression,fairDslContex);
 
       naMap.putIfAbsent(nameExpression.label, () =>naValue);
      }
@@ -122,12 +161,17 @@ dynamic _buildWidgetDsl(Expression widgetExpression ){
 
 }
 
-dynamic _buildValueExpression(Expression valueExpression){
+dynamic _buildValueExpression(Expression valueExpression,FairDslContex fairDslContex){
 
   var naPaValue;
 
   if(valueExpression.isIdentifier) {
-    naPaValue = valueExpression.asIdentifier.name;
+    //映射变量声明
+    if(fairDslContex.variableAnnotation.containsKey(valueExpression.asIdentifier.name)){
+      naPaValue ="#("+valueExpression.asIdentifier.name+")";
+    }else{
+      naPaValue = valueExpression.asIdentifier.name;
+    }
   }else if(valueExpression.isNumericLiteral){
     naPaValue =  valueExpression.asNumericLiteral.value;
   }else if (valueExpression.isStringLiteral){
@@ -145,7 +189,7 @@ dynamic _buildValueExpression(Expression valueExpression){
     }
   }
   else{
-    naPaValue = _buildWidgetDsl(valueExpression);
+    naPaValue = _buildWidgetDsl(valueExpression,fairDslContex);
   }
   return naPaValue;
 }
