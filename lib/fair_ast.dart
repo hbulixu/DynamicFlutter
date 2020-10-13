@@ -155,7 +155,7 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
       };
 
   Map _buildMethodDeclaration(
-          Map id, Map parameters, Map typeParameters, Map body, Map returnType,
+          Map id, Map parameters, Map typeParameters, Map body, Map returnType,List<Map> annotations,
           {bool isAsync: false}) =>
       {
         "type": "MethodDeclaration",
@@ -165,6 +165,7 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
         "body": body,
         "isAsync": isAsync,
         "returnType": returnType,
+        "annotations" : annotations
       };
 
   Map _buildNamedExpression(Map id, Map expression) => {
@@ -352,6 +353,10 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
   }
 
   @override
+  Map visitExpressionFunctionBody(ExpressionFunctionBody node) {
+    return _buildBloc([_safelyVisitNode(node.expression)]);
+  }
+  @override
   Map visitFunctionExpression(FunctionExpression node) {
     return _buildFunctionExpression(
         _safelyVisitNode(node.parameters), _safelyVisitNode(node.body),
@@ -387,6 +392,7 @@ class MyAstVisitor extends SimpleAstVisitor<Map> {
         _safelyVisitNode(node.typeParameters),
         _safelyVisitNode(node.body),
         _safelyVisitNode(node.returnType),
+        _safelyVisitNodeList(node.metadata),
         isAsync: node.body.isAsynchronous);
   }
 

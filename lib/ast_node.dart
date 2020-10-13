@@ -353,7 +353,8 @@ class MethodDeclaration extends AstNode {
   List<SimpleFormalParameter> parameterList;
   BlockStatement body;
   bool isAsync;
-  MethodDeclaration(this.name, this.parameterList, this.body,
+  List<Annotation> annotationList;
+  MethodDeclaration(this.name, this.parameterList, this.body,this.annotationList,
       {this.isAsync = false, Map ast})
       : super(ast: ast);
 
@@ -368,8 +369,16 @@ class MethodDeclaration extends AstNode {
           parameters.add(SimpleFormalParameter.fromAst(arg));
         }
       }
+      var astAnnotations = ast ['annotations'] as List;
+      var annotations = <Annotation>[];
+      if(astAnnotations != null){
+        for (var ann in astAnnotations){
+          annotations.add(Annotation.fromAst(ann));
+        }
+      }
+
       return MethodDeclaration(Identifier.fromAst(ast['id']).name, parameters,
-          BlockStatement.fromAst(ast['body']),
+          BlockStatement.fromAst(ast['body']),annotations,
           isAsync: ast['isAsync'] as bool, ast: ast);
     }
     return null;
@@ -1251,11 +1260,17 @@ class SelectAstClass {
 
 ///解析ArgumentList 字段
 List<Expression> _parseArgumentList(Map ast) {
-  var astArguments = ast['argumentList'] as List;
+
   var arguments = <Expression>[];
-  for (var arg in astArguments) {
-    arguments.add(Expression.fromAst(arg));
+  if(ast != null){
+    var astArguments = ast['argumentList'] as List;
+    if(astArguments != null){
+      for (var arg in astArguments) {
+        arguments.add(Expression.fromAst(arg));
+      }
+    }
   }
+
   return arguments;
 }
 

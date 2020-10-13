@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:dynamicflutter/ast_node.dart';
 
+const String kFairWellAnnotaion = "FairWell";
 
 //解析用到的上下文
 class FairDslContex{
@@ -13,6 +14,7 @@ class FairDslContex{
 void fairDsl(Map rootAst){
   FairDslContex fairDslContex = FairDslContex(_prepareVariableAnnotation(rootAst));
   Map map = _parseRootAst(rootAst,fairDslContex);
+  stdout.writeln("####################");
   stdout.writeln(jsonEncode(map));
 }
 
@@ -32,15 +34,26 @@ Map _prepareVariableAnnotation(Map rootAst){
   for(var body in bodyList){
     var classBodyList = body.asClassDeclaration.body;
     for(var bodyNode in classBodyList){
-      //只处理变量声明
-      if(bodyNode.isVariableDeclarationList){
-         var annotaions = bodyNode.asVariableDeclarationList.annotationList;
-         for(var annotation in annotaions){
-           if(annotation.name == "FairWell"){
-             var arg = annotation.argumentList.first.asStringLiteral;
-             annotationMap.putIfAbsent(arg.value, () => {"FairWell"});
-           }
-         }
+      var classBodyList = body.asClassDeclaration.body;
+      for(var bodyNode in classBodyList){
+        //只处理变量声明
+        var annotaions =[];
+        if(bodyNode.isVariableDeclarationList){
+          annotaions= bodyNode.asVariableDeclarationList.annotationList;
+        }
+        else if(bodyNode.isMethodDeclaration){
+          annotaions = bodyNode.asMethodDeclaration.annotationList;
+        }
+        if(annotaions == null){
+          continue;
+        }
+        for(var annotation in annotaions){
+          if(annotation.name == kFairWellAnnotaion){
+            var arg = annotation.argumentList.first.asStringLiteral;
+            annotationMap.putIfAbsent(arg.value, () => {kFairWellAnnotaion});
+          }
+        }
+
       }
     }
   }
@@ -106,7 +119,10 @@ dynamic _buildWidgetDsl(Expression widgetExpression ,FairDslContex fairDslContex
   var methodInvocationExpression =  widgetExpression.asMethodInvocation;
   //普通类
   if(methodInvocationExpression.callee.isIdentifier){
-
+    //注册的方法不再使用className
+    if(fairDslContex.variableAnnotation.containsKey(methodInvocationExpression.callee.asIdentifier.name)){
+      return "#("+methodInvocationExpression.callee.asIdentifier.name+")";
+    }
     dslMap.putIfAbsent("className", () => methodInvocationExpression.callee.asIdentifier.name);
   }else if(methodInvocationExpression.callee.isMemberExpression){//方法类
 
